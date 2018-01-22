@@ -3,8 +3,8 @@ package sql_exporter
 import (
 	"fmt"
 
-	"github.com/free/sql_exporter/config"
-	"github.com/free/sql_exporter/errors"
+	"github.com/naveego/sql_exporter/config"
+	"github.com/naveego/sql_exporter/errors"
 	"github.com/prometheus/client_golang/prometheus"
 )
 

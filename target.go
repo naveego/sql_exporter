@@ -2,15 +2,13 @@ package sql_exporter
 
 import (
 	"context"
-	"database/sql"
-	"database/sql/driver"
 	"fmt"
 	"sort"
 	"sync"
 	"time"
 
-	"github.com/free/sql_exporter/config"
-	"github.com/free/sql_exporter/errors"
+	"github.com/naveego/sql_exporter/config"
+	"github.com/naveego/sql_exporter/errors"
 	"github.com/golang/protobuf/proto"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
@@ -44,7 +42,7 @@ type target struct {
 	scrapeDurationDesc MetricDesc
 	logContext         string
 
-	conn *sql.DB
+	db DB
 }
 
 // NewTarget returns a new Target with the given instance name, data source name, collectors and constant labels.
@@ -116,7 +114,7 @@ func (t *target) Collect(ctx context.Context, ch chan<- Metric) {
 			// If using a single DB connection, collectors will likely run sequentially anyway. But we might have more.
 			go func(collector Collector) {
 				defer wg.Done()
-				collector.Collect(ctx, t.conn, ch)
+				collector.Collect(ctx, t.db, ch)
 			}(c)
 		}
 	}
@@ -133,28 +131,28 @@ func (t *target) ping(ctx context.Context) errors.WithContext {
 	// Create the DB handle, if necessary. It won't usually open an actual connection, so we'll need to ping afterwards.
 	// We cannot do this only once at creation time because the sql.Open() documentation says it "may" open an actual
 	// connection, so it "may" actually fail to open a handle to a DB that's initially down.
-	if t.conn == nil {
-		conn, err := OpenConnection(ctx, t.logContext, t.dsn, t.globalConfig.MaxConns, t.globalConfig.MaxIdleConns)
+	if t.db == nil {
+		db, err := OpenConnection(ctx, t.logContext, t.dsn, t.globalConfig.MaxConns, t.globalConfig.MaxIdleConns)
 		if err != nil {
 			if err != ctx.Err() {
 				return errors.Wrap(t.logContext, err)
 			}
 			// if err == ctx.Err() fall through
 		} else {
-			t.conn = conn
+			t.db = db
 		}
 	}
 
 	// If we have a handle and the context is not closed, test whether the database is up.
-	if t.conn != nil && ctx.Err() == nil {
+	if t.db != nil && ctx.Err() == nil {
 		var err error
 		// Ping up to max_connections + 1 times as long as the returned error is driver.ErrBadConn, to purge the connection
 		// pool of bad connections. This might happen if the previous scrape timed out and in-flight queries got canceled.
 		for i := 0; i <= t.globalConfig.MaxConns; i++ {
-			if err = PingDB(ctx, t.conn); err != driver.ErrBadConn {
-				break
-			}
+			t.db.Ping(ctx)
+
 		}
+
 		if err != nil {
 			return errors.Wrap(t.logContext, err)
 		}

@@ -2,13 +2,12 @@ package sql_exporter
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"sync"
 	"time"
 
-	"github.com/free/sql_exporter/config"
-	"github.com/free/sql_exporter/errors"
+	"github.com/naveego/sql_exporter/config"
+	"github.com/naveego/sql_exporter/errors"
 	log "github.com/golang/glog"
 	dto "github.com/prometheus/client_model/go"
 )
@@ -17,13 +16,13 @@ import (
 // conceptually similar to a prometheus.Collector.
 type Collector interface {
 	// Collect is the equivalent of prometheus.Collector.Collect() but takes a context to run in and a database to run on.
-	Collect(context.Context, *sql.DB, chan<- Metric)
+	Collect(context.Context, DB, chan<- Metric)
 }
 
 // collector implements Collector. It wraps a collection of queries, metrics and the database to collect them from.
 type collector struct {
 	config     *config.CollectorConfig
-	queries    []*Query
+	queries    []Collector
 	logContext string
 }
 
@@ -49,7 +48,7 @@ func NewCollector(logContext string, cc *config.CollectorConfig, constLabels []*
 	}
 
 	// Instantiate queries.
-	queries := make([]*Query, 0, len(cc.Metrics))
+	queries := make([]Collector, 0, len(cc.Metrics))
 	for qc, mfs := range queryMFs {
 		q, err := NewQuery(logContext, qc, mfs...)
 		if err != nil {
@@ -71,13 +70,13 @@ func NewCollector(logContext string, cc *config.CollectorConfig, constLabels []*
 }
 
 // Collect implements Collector.
-func (c *collector) Collect(ctx context.Context, conn *sql.DB, ch chan<- Metric) {
+func (c *collector) Collect(ctx context.Context, db DB, ch chan<- Metric) {
 	var wg sync.WaitGroup
 	wg.Add(len(c.queries))
 	for _, q := range c.queries {
-		go func(q *Query) {
+		go func(q Collector) {
 			defer wg.Done()
-			q.Collect(ctx, conn, ch)
+			q.Collect(ctx, db, ch)
 		}(q)
 	}
 	// Only return once all queries have been processed
@@ -109,7 +108,7 @@ type cachingCollector struct {
 }
 
 // Collect implements Collector.
-func (cc *cachingCollector) Collect(ctx context.Context, conn *sql.DB, ch chan<- Metric) {
+func (cc *cachingCollector) Collect(ctx context.Context, db DB, ch chan<- Metric) {
 	if ctx.Err() != nil {
 		ch <- NewInvalidMetric(errors.Wrap(cc.rawColl.logContext, ctx.Err()))
 		return
@@ -126,7 +125,7 @@ func (cc *cachingCollector) Collect(ctx context.Context, conn *sql.DB, ch chan<-
 			cacheChan := make(chan Metric, capMetricChan)
 			cc.cache = make([]Metric, 0, len(cc.cache))
 			go func() {
-				cc.rawColl.Collect(ctx, conn, cacheChan)
+				cc.rawColl.Collect(ctx, db, cacheChan)
 				close(cacheChan)
 			}()
 			for metric := range cacheChan {
