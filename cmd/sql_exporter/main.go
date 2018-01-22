@@ -7,8 +7,8 @@ import (
 	"os"
 	"runtime"
 
-	"github.com/naveego/sql_exporter"
 	log "github.com/golang/glog"
+	"github.com/naveego/sql_exporter"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"

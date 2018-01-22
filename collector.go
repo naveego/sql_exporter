@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
+	log "github.com/golang/glog"
 	"github.com/naveego/sql_exporter/config"
 	"github.com/naveego/sql_exporter/errors"
-	log "github.com/golang/glog"
 	dto "github.com/prometheus/client_model/go"
 )
 

@@ -2,4 +2,4 @@
 /.settings
 /sql_exporter
 /sql_exporter.yml
-/vendor
+vendor/**

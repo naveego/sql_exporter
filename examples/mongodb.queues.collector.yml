@@ -1,0 +1,39 @@
+# A collector defining some metrics off of MongoDB
+collector_name: mongodb_queues
+
+# Similar to global.min_interval, but applies to the queries defined by this collector only.
+#min_interval: 0s
+
+queries:
+  - query_name: counters
+    dsn_scheme: mongodb
+    collection: counters
+    query: |
+      [
+      {"$project": { "queue": "$_id", "count":"$c" }}
+      ]    
+  - query_name: sync.writebacks_count
+    dsn_scheme: mongodb
+    collection: sync.writebacks
+    query: |
+      [
+      {"$project": { "queued":"$queued" }}
+      ]    
+
+
+metrics:
+  - metric_name: queue_processing_pointer
+    type: gauge
+    help: 'ID of the most recently processed queue record.'
+    values: 
+      - count
+    key_labels:
+      - queue
+    query_ref: counters
+
+  - metric_name: sync_writebacks_queued_count
+    type: gauge
+    help: 'Number of sync writebacks queued.'
+    values: 
+      - queued
+    query_ref: sync.writebacks_count

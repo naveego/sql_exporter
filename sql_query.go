@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"fmt"
 
+	log "github.com/golang/glog"
 	"github.com/naveego/sql_exporter/config"
 	"github.com/naveego/sql_exporter/errors"
-	log "github.com/golang/glog"
 )
 
 // SQLQuery wraps a sql.Stmt and all the metrics populated from it. It helps extract keys and values from result rows.

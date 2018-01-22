@@ -11,15 +11,33 @@ global:
   # always be the same as max_connections.
   max_idle_connections: 3
 
-# The target to monitor and the collectors to execute on it.
-target:
-  # Data source name always has a URI schema that matches the driver name. In some cases (e.g. MySQL)
-  # the schema gets dropped or replaced to match the driver expected DSN format.
-  data_source_name: 'sqlserver://prom_user:prom_password@dbserver1.example.com:1433'
+# # The target to monitor and the collectors to execute on it.
+# target:
+#   # Data source name always has a URI schema that matches the driver name. In some cases (e.g. MySQL)
+#   # the schema gets dropped or replaced to match the driver expected DSN format.
+#   data_source_name: 'sqlserver://prom_user:prom_password@dbserver1.example.com:1433'
 
-  # Collectors (referenced by name) to execute on the target.
-  collectors: [mssql_standard]
+#   # Collectors (referenced by name) to execute on the target.
+#   collectors: [mssql_standard]
+
+jobs:
+  # - job_name: sql_collector
+  #   collectors: [mssql_standard]
+  #   static_configs: 
+  #     - targets:
+  #         test_sql: "sqlserver://temp_dev:temp23!@10.250.1.11:1433"
+  #       labels:
+  #         database: AdventureWorks2012
+  - job_name: mongodb_collector
+    collectors: [mongodb_queues]
+    static_configs: 
+      - targets:
+          mongo_demo: "mongodb://mongo.n5o.green:27017/demo"
+        labels:
+          database: demo
+
 
 # Collector files specifies a list of globs. One collector definition is read from each matching file.
 collector_files: 
-  - "*.collector.yml"
+#  - "mssql_standard.collector.yml"
+  - "mongodb.queues.collector.yml"

@@ -128,7 +128,7 @@ func (c *Config) loadCollectorFiles() error {
 				return err
 			}
 			c.Collectors = append(c.Collectors, &cc)
-			log.Infof("Loaded collector %q from %s", cc.Name, cf)
+			log.Infof("Loaded collector %q from %s!", cc.Name, cf)
 		}
 	}
 
@@ -315,10 +315,11 @@ func (s *StaticConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 // CollectorConfig defines a set of metrics and how they are collected.
 type CollectorConfig struct {
-	Name        string          `yaml:"collector_name"`         // name of this collector
-	MinInterval model.Duration  `yaml:"min_interval,omitempty"` // minimum interval between query executions
-	Metrics     []*MetricConfig `yaml:"metrics"`                // metrics/queries defined by this collector
-	Queries     []*QueryConfig  `yaml:"queries,omitempty"`      // named queries defined by this collector
+	Name        string         `yaml:"collector_name"`         // name of this collector
+	MinInterval model.Duration `yaml:"min_interval,omitempty"` // minimum interval between query executions
+
+	Metrics []*MetricConfig `yaml:"metrics"`           // metrics/queries defined by this collector
+	Queries []*QueryConfig  `yaml:"queries,omitempty"` // named queries defined by this collector
 
 	// Catches all undefined fields and must be empty after parsing.
 	XXX map[string]interface{} `yaml:",inline" json:"-"`
@@ -452,9 +453,10 @@ func (m *MetricConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 // QueryConfig defines a named query, to be referenced by one or multiple metrics.
 type QueryConfig struct {
-	Name      string `yaml:"query_name"` // the query name, to be referenced via `query_ref`
-	Query     string `yaml:"query"`      // the named query
-	DSNScheme string `yaml:"dsn_scheme"` // the dsn scheme required for this query to be executed
+	Name       string `yaml:"query_name"` // the query name, to be referenced via `query_ref`
+	Query      string `yaml:"query"`      // the named query
+	DSNScheme  string `yaml:"dsn_scheme"` // the dsn scheme required for this query to be executed
+	Collection string `yaml:"collection"` // the collection to target if this is a MongoDB query
 
 	metrics []*MetricConfig // metrics referencing this query
 
@@ -475,6 +477,9 @@ func (q *QueryConfig) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	}
 	if q.Query == "" {
 		return fmt.Errorf("missing query literal for query %q", q.Name)
+	}
+	if q.DSNScheme == "mongodb" && q.Collection == "" {
+		return fmt.Errorf("missing collection name for mongodb query %q", q.Name)
 	}
 
 	q.metrics = make([]*MetricConfig, 0, 2)
