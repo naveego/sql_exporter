@@ -14,15 +14,42 @@ queries:
       ]    
   - query_name: sync.writebacks_count
     dsn_scheme: mongodb
-    collection: sync.writebacks
+    collection: sync.writebacks.queue
     query: |
-      [
-      {"$project": { "queued":"$queued" }}
-      ]    
+      [{
+        "$group": {
+           "_id": { "dataSourceName": "$dataSourceName", "object": "$object" },
+          "queued": { "$sum": 1 }
+        }
+      },
+      {
+        "$project": {
+          "_id": 0,
+          "dataSourceName": "$_id.dataSourceName",
+          "object":"$_id.object",
+          "queued":"$queued"
+        }
+      }]
+  - query_name: streams.event_min
+    dsn_scheme: mongodb
+    collection: streams.event
+    query: |
+      [{"$limit": 1},{"$project": { "min": "$_id" } } ]
+  - query_name: streams.masterdata_min
+    dsn_scheme: mongodb
+    collection: streams.masterdata
+    query: |
+      [{"$limit": 1},{"$project": { "min": "$_id" } } ]
+  - query_name: streams.rawdata_min
+    dsn_scheme: mongodb
+    collection: streams.rawdata
+    query: |
+      [{"$limit": 1},{"$project": { "min": "$_id" } } ]
+
 
 
 metrics:
-  - metric_name: queue_processing_pointer
+  - metric_name: mongodb_queue_processing_pointer
     type: gauge
     help: 'ID of the most recently processed queue record.'
     values: 
@@ -31,9 +58,32 @@ metrics:
       - queue
     query_ref: counters
 
-  - metric_name: sync_writebacks_queued_count
+  - metric_name: mongodb_sync_writebacks_queued_count
     type: gauge
     help: 'Number of sync writebacks queued.'
     values: 
       - queued
+    key_labels:
+      - dataSourceName
+      - object
     query_ref: sync.writebacks_count
+
+  - metric_name: mongodb_streams.event_min
+    type: gauge    
+    help: Minimum ID on the streams.event queue.
+    values: 
+      - min
+    query_ref: streams.event_min
+
+  - metric_name: mongodb_streams.masterdata_min
+    type: gauge    
+    help: Minimum ID on the streams.masterdata queue.
+    values: 
+      - min
+    query_ref: streams.masterdata_min
+  - metric_name: mongodb_streams.rawdata_min
+    type: gauge    
+    help: Minimum ID on the streams.rawdata queue.
+    values: 
+      - min
+    query_ref: streams.rawdata_min

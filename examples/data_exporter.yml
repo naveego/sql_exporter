@@ -25,19 +25,50 @@ jobs:
   #   collectors: [mssql_standard]
   #   static_configs: 
   #     - targets:
-  #         test_sql: "sqlserver://temp_dev:temp23!@10.250.1.11:1433"
+  #         test_sql: "sqlserver://temp_dev:temp23!@10.250.1.11:1433?database=Adventureworks2012"
   #       labels:
-  #         database: AdventureWorks2012
+  #         tenant: AdventureWorks2012
   - job_name: mongodb_collector
     collectors: [mongodb_queues]
     static_configs: 
       - targets:
           mongo_demo: "mongodb://mongo.n5o.green:27017/demo"
         labels:
-          database: demo
+          tenant: demo
+      - targets:
+          mongo_demo: "mongodb://mongo.n5o.green:27017/enerhub"
+        labels:
+          tenant: enerhub
+      - targets:
+          mongo_demo: "mongodb://mongo.n5o.blue:27017/synergy"
+        labels:
+          tenant: enerhub
+jobs:
+  # - job_name: sql_collector
+  #   collectors: [mssql_standard]
+  #   static_configs: 
+  #     - targets:
+  #         test_sql: "sqlserver://temp_dev:temp23!@10.250.1.11:1433?database=Adventureworks2012"
+  #       labels:
+  #         tenant: AdventureWorks2012
+  - job_name: mongodb_collector
+    collectors: [mongodb_queues]
+    static_configs: 
+      - targets:
+          mongo_demo: "mongodb://mongo.n5o.green:27017/demo"
+        labels:
+          tenant: demo
+      - targets:
+          mongo_demo: "mongodb://mongo.n5o.green:27017/enerhub"
+        labels:
+          tenant: enerhub
+      - targets:
+          mongo_demo: "mongodb://mongo.n5o.blue:27017/synergy"
+        labels:
+          tenant: enerhub
 
 
 # Collector files specifies a list of globs. One collector definition is read from each matching file.
 collector_files: 
-#  - "mssql_standard.collector.yml"
+  - "mssql_standard.collector.yml"
   - "mongodb.queues.collector.yml"

@@ -90,8 +90,6 @@ func OpenConnection(ctx context.Context, logContext, dsn string, maxConns, maxId
 	}
 	driver := dsn[:idx]
 
-	log.Infof("Opening connection for DSN %q using driver %q", dsn, driver)
-
 	// Adjust DSN, where necessary.
 	switch driver {
 	case "mongodb":
@@ -134,7 +132,6 @@ func OpenConnection(ctx context.Context, logContext, dsn string, maxConns, maxId
 }
 
 func openMongoDBConnection(ctx context.Context, logContext, dsn string, maxConns, maxIdleConns int) (DB, error) {
-	fmt.Println("opening mongodb connection", logContext, dsn)
 	if !strings.HasPrefix(dsn, "mongodb://") {
 		return nil, errors.New(logContext, "dsn must specify mongodb://")
 	}
