@@ -1,4 +1,4 @@
-package sql_exporter
+package data_exporter
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"sync"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/naveego/sql_exporter/config"
+	"github.com/naveego/data_exporter/config"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 )

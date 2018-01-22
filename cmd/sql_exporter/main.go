@@ -7,16 +7,17 @@ import (
 	"os"
 	"runtime"
 
+	_ "net/http/pprof"
+
 	log "github.com/golang/glog"
-	"github.com/naveego/sql_exporter"
+	"github.com/naveego/data_exporter"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/version"
-	_ "net/http/pprof"
 )
 
 func init() {
-	prometheus.MustRegister(version.NewCollector("sql_exporter"))
+	prometheus.MustRegister(version.NewCollector("data_exporter"))
 }
 
 func main() {
@@ -29,7 +30,7 @@ func main() {
 		showVersion   = flag.Bool("version", false, "Print version information.")
 		listenAddress = flag.String("web.listen-address", ":9399", "Address to listen on for web interface and telemetry.")
 		metricsPath   = flag.String("web.metrics-path", "/metrics", "Path under which to expose metrics.")
-		configFile    = flag.String("config.file", "sql_exporter.yml", "SQL Exporter configuration file name.")
+		configFile    = flag.String("config.file", "data_exporter.yml", "SQL Exporter configuration file name.")
 	)
 
 	// Override --alsologtostderr default value.
@@ -45,13 +46,13 @@ func main() {
 	flag.Parse()
 
 	if *showVersion {
-		fmt.Println(version.Print("sql_exporter"))
+		fmt.Println(version.Print("data_exporter"))
 		os.Exit(0)
 	}
 
 	log.Infof("Starting SQL exporter %s %s", version.Info(), version.BuildContext())
 
-	exporter, err := sql_exporter.NewExporter(*configFile)
+	exporter, err := data_exporter.NewExporter(*configFile)
 	if err != nil {
 		log.Fatalf("Error creating exporter: %s", err)
 	}
@@ -62,7 +63,7 @@ func main() {
 	http.HandleFunc("/config", ConfigHandlerFunc(*metricsPath, exporter))
 	http.Handle(*metricsPath, ExporterHandlerFor(exporter))
 	// Expose exporter metrics separately, for debugging purposes.
-	http.Handle("/sql_exporter_metrics", promhttp.Handler())
+	http.Handle("/data_exporter_metrics", promhttp.Handler())
 
 	log.Infof("Listening on %s", *listenAddress)
 	log.Fatal(http.ListenAndServe(*listenAddress, nil))

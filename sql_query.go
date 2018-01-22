@@ -1,4 +1,4 @@
-package sql_exporter
+package data_exporter
 
 import (
 	"context"
@@ -6,8 +6,8 @@ import (
 	"fmt"
 
 	log "github.com/golang/glog"
-	"github.com/naveego/sql_exporter/config"
-	"github.com/naveego/sql_exporter/errors"
+	"github.com/naveego/data_exporter/config"
+	"github.com/naveego/data_exporter/errors"
 )
 
 // SQLQuery wraps a sql.Stmt and all the metrics populated from it. It helps extract keys and values from result rows.

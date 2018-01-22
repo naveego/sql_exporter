@@ -1,4 +1,4 @@
-package sql_exporter
+package data_exporter
 
 import (
 	"context"
@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/naveego/sql_exporter/errors"
+	"github.com/naveego/data_exporter/errors"
 	"gopkg.in/mgo.v2"
 
 	_ "github.com/denisenkom/go-mssqldb" // register the MS-SQL driver

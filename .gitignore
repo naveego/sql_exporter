@@ -1,5 +1,5 @@
 /.project
 /.settings
-/sql_exporter
-/sql_exporter.yml
+/data_exporter
+/data_exporter.yml
 vendor/**

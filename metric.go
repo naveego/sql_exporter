@@ -1,12 +1,12 @@
-package sql_exporter
+package data_exporter
 
 import (
 	"fmt"
 	"sort"
 
 	"github.com/golang/protobuf/proto"
-	"github.com/naveego/sql_exporter/config"
-	"github.com/naveego/sql_exporter/errors"
+	"github.com/naveego/data_exporter/config"
+	"github.com/naveego/data_exporter/errors"
 	"github.com/prometheus/client_golang/prometheus"
 	dto "github.com/prometheus/client_model/go"
 )

@@ -1,10 +1,10 @@
-package sql_exporter_test
+package data_exporter_test
 
 import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	. "github.com/naveego/sql_exporter"
+	. "github.com/naveego/data_exporter"
 )
 
 var _ = Describe("MongoQuery", func() {

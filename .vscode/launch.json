@@ -12,11 +12,11 @@
             "remotePath": "",
             "port": 2345,
             "host": "127.0.0.1",
-            "program": "/home/steve/go/src/github.com/naveego/sql_exporter/cmd/sql_exporter",
+            "program": "/home/steve/go/src/github.com/naveego/data_exporter/cmd/data_exporter",
             "env": {},
             "args": [
                 "--config.file",
-                "../../examples/sql_exporter.yml"
+                "../../examples/data_exporter.yml"
             ],
             "showLog": true
         }

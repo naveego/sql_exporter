@@ -1,11 +1,11 @@
 go:
     cgo: false
 repository:
-    path: github.com/naveego/sql_exporter
+    path: github.com/naveego/data_exporter
 build:
     binaries:
-        - name: sql_exporter
-          path: ./cmd/sql_exporter
+        - name: data_exporter
+          path: ./cmd/data_exporter
     flags: -a -tags netgo
     ldflags: |
       -X {{repoPath}}/vendor/github.com/prometheus/common/version.Version={{.Version}}
@@ -17,5 +17,6 @@ tarball:
     files:
       - LICENSE
       - README.md
-      - examples/sql_exporter.yml
+      - examples/data_exporter.yml
       - examples/mssql_standard.collector.yml
+      - examples/mongodb.queues.collector.yml

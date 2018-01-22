@@ -1,4 +1,4 @@
-package sql_exporter
+package data_exporter
 
 import (
 	"context"
@@ -7,8 +7,8 @@ import (
 	"time"
 
 	log "github.com/golang/glog"
-	"github.com/naveego/sql_exporter/config"
-	"github.com/naveego/sql_exporter/errors"
+	"github.com/naveego/data_exporter/config"
+	"github.com/naveego/data_exporter/errors"
 	dto "github.com/prometheus/client_model/go"
 )
 
