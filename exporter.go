@@ -105,23 +105,25 @@ func (e *exporter) Gather() ([]*dto.MetricFamily, error) {
 			continue
 		}
 		metricDesc := metric.Desc()
-		dtoMetricFamily, ok := dtoMetricFamilies[metricDesc.Name()]
-		if !ok {
-			dtoMetricFamily = &dto.MetricFamily{}
-			dtoMetricFamily.Name = proto.String(metricDesc.Name())
-			dtoMetricFamily.Help = proto.String(metricDesc.Help())
-			switch {
-			case dtoMetric.Gauge != nil:
-				dtoMetricFamily.Type = dto.MetricType_GAUGE.Enum()
-			case dtoMetric.Counter != nil:
-				dtoMetricFamily.Type = dto.MetricType_COUNTER.Enum()
-			default:
-				errs = append(errs, fmt.Errorf("don't know how to handle metric %v", dtoMetric))
-				continue
+		if metricDesc != nil {
+			dtoMetricFamily, ok := dtoMetricFamilies[metricDesc.Name()]
+			if !ok {
+				dtoMetricFamily = &dto.MetricFamily{}
+				dtoMetricFamily.Name = proto.String(metricDesc.Name())
+				dtoMetricFamily.Help = proto.String(metricDesc.Help())
+				switch {
+				case dtoMetric.Gauge != nil:
+					dtoMetricFamily.Type = dto.MetricType_GAUGE.Enum()
+				case dtoMetric.Counter != nil:
+					dtoMetricFamily.Type = dto.MetricType_COUNTER.Enum()
+				default:
+					errs = append(errs, fmt.Errorf("don't know how to handle metric %v", dtoMetric))
+					continue
+				}
+				dtoMetricFamilies[metricDesc.Name()] = dtoMetricFamily
 			}
-			dtoMetricFamilies[metricDesc.Name()] = dtoMetricFamily
+			dtoMetricFamily.Metric = append(dtoMetricFamily.Metric, dtoMetric)
 		}
-		dtoMetricFamily.Metric = append(dtoMetricFamily.Metric, dtoMetric)
 	}
 
 	// No need to sort metric families, prometheus.Gatherers will do that for us when merging.
