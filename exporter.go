@@ -70,6 +70,12 @@ func (e *exporter) WithContext(ctx context.Context) Exporter {
 
 // Gather implements prometheus.Gatherer.
 func (e *exporter) Gather() ([]*dto.MetricFamily, error) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in Gather", r)
+		}
+	}()
+
 	var (
 		metricChan = make(chan Metric, capMetricChan)
 		errs       prometheus.MultiError
